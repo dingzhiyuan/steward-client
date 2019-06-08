@@ -16,7 +16,6 @@ Vue.config.productionTip = false
 
 Vue.use(ElementUI);
 
-Vue.prototype.$axios = axios;
 Vue.prototype.$Request_get = Request_get
 Vue.prototype.$Request_post = Request_post
 Vue.prototype.$Request_post_headers = Request_post_headers
@@ -40,7 +39,6 @@ axios.interceptors.request.use(function (config) {
 })
 
 axios.interceptors.response.use(function (response) {
-  console.log("响应开始！")
   if (response.status != 200) {
     alert("服务器繁忙")
   }

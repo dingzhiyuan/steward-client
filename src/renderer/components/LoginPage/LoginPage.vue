@@ -14,30 +14,13 @@ import {
 import { resolve } from "url";
 
 export default {
-  data: {
-    accessToken: ""
-  },
   mounted() {
     this.$refs.wbLogin.addEventListener("dom-ready", () => {
       let url = this.$refs.wbLogin.getURL();
       if (url.indexOf("/github/callback") > 0) {
         let params = url.split("?")[1].split("=");
         let code = params[1];
-        this.githubLogin(code).then(data => {
-          this.$Request_post_headers(
-            {
-              Authorization: "bearer " + this.accessToken,
-              "Content-Type": "application/json;charset=UTF-8"
-            },
-            "https://api.github.com/graphql",
-            {
-              query:
-                '{viewer {starredRepositories(first:100,after:"Y3Vyc29yOnYyOpHOBAMmyg==") {totalCount edges {node {  id  nameWithOwner  description  url  databaseId primaryLanguage {   name } stargazers {   totalCount  }  forkCount  } }pageInfo {  endCursor  hasNextPage}}}}'
-            }
-          ).then(data => {
-            console.log(data);
-          });
-        });
+        this.githubLogin(code);
       }
     });
   },
@@ -61,7 +44,7 @@ export default {
       });
     },
     async getAccountInfo(accessToken) {
-      this.accessToken = accessToken;
+      this.$store.dispatch("getStarItems", accessToken);
       let { data } = await this.$Request_get("https://api.github.com/user", {
         access_token: accessToken
       });
