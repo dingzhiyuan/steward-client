@@ -1,12 +1,11 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import './css/common.css'
 import axios from 'axios'
+import VueMarkdown from 'vue-markdown'
 
-import { Request_get, Request_post, Request_put, Request_delete } from '../utils/utils.js'
-
-import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.min.css'
+import { Request_get, Request_post, Request_put, Request_delete,Request_post_headers } from '../utils/utils.js'
 
 import App from './App'
 import router from './router'
@@ -16,11 +15,11 @@ if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.config.productionTip = false
 
 Vue.use(ElementUI);
-Vue.use(Vuetify)
 
 Vue.prototype.$axios = axios;
 Vue.prototype.$Request_get = Request_get
 Vue.prototype.$Request_post = Request_post
+Vue.prototype.$Request_post_headers = Request_post_headers
 Vue.prototype.$Request_put = Request_put
 Vue.prototype.$Request_delete = Request_delete
 
@@ -115,15 +114,6 @@ axios.interceptors.response.use(function (response) {
   }
   return Promise.reject(error)
 })
-
-
-
-
-
-
-
-
-
 
 /* eslint-disable no-new */
 new Vue({

@@ -53,13 +53,13 @@
   "dependencies": {
     "axios": "^0.18.0",
     "babel-runtime": "^6.26.0",
-    "element-ui": "^2.8.2",
+    "element-ui": "^2.9.1",
     "is-mergeable-object": "^1.1.0",
     "qs": "^6.7.0",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
+    "vue-markdown": "^2.2.4",
     "vue-router": "^3.0.1",
-    "vuetify": "^1.5.14",
     "vuex": "^3.1.1",
     "vuex-electron": "^1.0.0"
   },

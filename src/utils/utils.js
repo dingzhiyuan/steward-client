@@ -21,6 +21,19 @@ export function Request_post(url, data) {
             })
     })
 }
+
+export function Request_post_headers(headers, url, data) {
+    return new Promise((resolv, reject) => {
+        this.$axios.post(url, data, { headers: headers })
+            .then(res => {
+                resolv(res)
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
 export function Request_put(url, data) {
     return new Promise((resolv, reject) => {
         this.$axios.put(url, data)
