@@ -8,12 +8,17 @@ export default new Router({
     {
       path: '/',
       name: 'login-page',
-      component: require('@/components/LoginPage/LoginPage').default
+      component: require('@/page/login/LoginPage').default
+    },
+    {
+      path: '/github/login',
+      name: 'github-login-page',
+      component: require('@/page/github/LoginPage').default
     },
     {
       path: '/main',
       name: 'main-page',
-      component: require('@/components/MainPage/MainPage').default
+      component: require('@/page/main/MainPage').default
     },
     {
       path: '*',

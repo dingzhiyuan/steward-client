@@ -37,8 +37,10 @@
 </template>
 
 <script>
-import { resolve } from "url";
 import VueMarkdown from "vue-markdown";
+import { getStarItems } from "../../api/githubApi";
+import { mapState } from "vuex";
+
 export default {
   components: {
     VueMarkdown
@@ -52,32 +54,15 @@ export default {
     };
   },
   created() {
-    this.getStars();
+    this.initItems();
   },
   methods: {
     loadMore() {
-      this.getStars();
+      // this.getStars();
     },
-    getStars() {
-      let url = "https://api.github.com/users/Darksknight/starred";
-      if (this.nextUrl.length > 0 && this.nextUrl != this.lastUrl) {
-        url = this.nextUrl;
-      }
-      this.$Request_get(url).then(({ headers, data }) => {
-        let pageInfos = headers.link.split(",");
-        for (let i = 0; i < pageInfos.length; i++) {
-          let array = pageInfos[i].split(";");
-          if (array[1].trim().indexOf("next") != -1) {
-            this.nextUrl = array[0].replace("<", "").replace(">","");
-          } else if (array[1].trim().indexOf("last") != -1) {
-            this.lastUrl = array[0].replace("<", "").replace(">","");
-          }
-        }
-        if (this.items.length > 0) {
-          this.items = this.items.concat(data);
-        } else {
-          this.items = data;
-        }
+    initItems() {
+      getStarItems(this.$store.state.global.accountInfo.accessToken).then(data => {
+        this.$store.dispatch('setStarItems', data)
       });
     },
     clickItem(item) {
