@@ -1,7 +1,7 @@
 const state = {
   accountInfo: null,
-  starTotalCount: 0,
-  starItems: 123
+  starTotalCount: null,
+  starItems: null
 }
 
 const mutations = {
@@ -10,7 +10,9 @@ const mutations = {
   },
   SET_STAR_ITEMS(state, data) {
     state.starTotalCount = data.data.data.viewer.starredRepositories.totalCount;
-    console.log(state.starItems)
+    if (!state.starItems) {
+      state.starItems = [];
+    }
     state.starItems.push(data.data.data.viewer.starredRepositories.edges);
   }
 }

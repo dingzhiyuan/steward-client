@@ -5,11 +5,11 @@
       v-infinite-scroll="loadMore"
       style="width:20%;float:left;height:100vh;box-sizing:border-box;border-right:1px solid #ccc;overflow-y:auto;"
     >
-      <el-row v-for="item in items" :key="item.id" class="infinite-list-item">
+      <el-row v-for="item in items" :key="item.node.id" class="infinite-list-item">
         <el-col :span="24">
           <div class="grid-content bg-purple-dark" @click="clickItem(item)">
-            <p class="info-title">{{item.name}}</p>
-            <p class="info-description">{{item.description}}</p>
+            <p class="info-title">{{item.node.nameWithOwner.split('/')[1]}}</p>
+            <p class="info-description">{{item.node.description}}</p>
             <el-row class="info-handler-col">
               <el-col :span="8">
                 <i class="el-icon-s-opportunity"></i>
@@ -39,7 +39,6 @@
 <script>
 import VueMarkdown from "vue-markdown";
 import { getStarItems } from "../../api/githubApi";
-import { mapState } from "vuex";
 
 export default {
   components: {
@@ -47,9 +46,11 @@ export default {
   },
   data() {
     return {
+      items: [],
+      starItems: [],
+      count: 0,
       nextUrl: "",
       lastUrl: "",
-      items: [],
       readme_contents: null
     };
   },
@@ -58,11 +59,30 @@ export default {
   },
   methods: {
     loadMore() {
-      // this.getStars();
+      if (this.count == this.starItems.length - 1) {
+        return;
+      }
+      this.count++;
+      this.items = this.items.concat(this.starItems[this.count]);
+      console.log(this.items);
     },
     initItems() {
-      getStarItems(this.$store.state.global.accountInfo.accessToken).then(data => {
-        this.$store.dispatch('setStarItems', data)
+      this.loadItems(this.$route.params.accountInfo.accessToken, "", 0);
+    },
+    loadItems(accessToken, cursor, index) {
+      if (cursor == null) {
+        this.items = this.starItems[0];
+        return;
+      }
+      console.log(cursor)
+      getStarItems(accessToken, cursor).then(data => {
+        this.starItems.push(data.data.data.viewer.starredRepositories.edges);
+        console.log(this.starItems)
+        this.loadItems(
+          accessToken,
+          data.data.data.viewer.starredRepositories.pageInfo.endCursor,
+          index++
+        );
       });
     },
     clickItem(item) {

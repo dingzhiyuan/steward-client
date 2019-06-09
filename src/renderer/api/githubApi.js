@@ -17,7 +17,11 @@ export function getAccountInfo(accessToken) {
     });
 }
 
-export function getStarItems(accessToken) {
+export function getStarItems(accessToken, endCursor) {
+    let cursor = "";
+    if (endCursor) {
+        cursor = ",after:\"" + endCursor + "\"";
+    }
     return request_post_headers(
         {
             Authorization: "bearer " + accessToken,
@@ -26,7 +30,7 @@ export function getStarItems(accessToken) {
         "https://api.github.com/graphql",
         {
             query:
-                '{viewer {starredRepositories(first:100) {totalCount edges {node {  id  nameWithOwner  description  url  databaseId primaryLanguage {   name } stargazers {   totalCount  }  forkCount  } }pageInfo {  endCursor  hasNextPage}}}}'
+                '{viewer {starredRepositories(first:100' + cursor + ') {totalCount edges {node {  id  nameWithOwner  description  url  databaseId primaryLanguage {   name } stargazers {   totalCount  }  forkCount  } }pageInfo {  endCursor  hasNextPage}}}}'
         }
     );
 }

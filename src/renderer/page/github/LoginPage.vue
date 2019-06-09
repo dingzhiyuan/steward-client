@@ -20,8 +20,9 @@ export default {
           let accessToken = data.data.split("&")[0].split("=")[1];
           getAccountInfo(accessToken).then(data => {
             data.data.accessToken = accessToken;
-            this.$store.dispatch("setAccountInfo", data.data).then(() => {
-              this.$router.push("/main");
+            this.$router.push({
+              name: "main-page",
+              params: { accountInfo: data.data }
             });
           });
         });
