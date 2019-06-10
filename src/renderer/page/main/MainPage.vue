@@ -7,22 +7,22 @@
           :fit="fill"
           style="width:100px;height:100px;margin-top:30px;border-radius:100px"
         />
-        <el-row style="color:white;margin-top:10px;">asdfasdf</el-row>
+        <el-row style="color:white;margin-top:10px;">{{this.$route.params.accountInfo.login}}</el-row>
       </div>
-      <el-row style="margin-top:20px;">
+      <el-row class="row_all">
         <el-col>
-          <i class="el-icon-s-grid"/>
-          <span style="color:white;">All</span>
+          <span class="tag_all">All</span>
         </el-col>
       </el-row>
       <el-collapse class="left-side-collapse">
         <el-collapse-item>
           <template slot="title">
-            <i class="header-icon el-icon-info"></i>
-            <span>LANGUAGES</span>
+            <span style="margin-left:20px;">LANGUAGES</span>
           </template>
-          <div>C#</div>
-          <div>JS</div>
+          <div>
+            <div class="languages_item">C#</div>
+            <div class="languages_item">JS</div>
+          </div>
         </el-collapse-item>
       </el-collapse>
     </div>
@@ -70,8 +70,7 @@ export default {
   },
   data() {
     return {
-      url:
-        "http://5b0988e595225.cdn.sohucs.com/images/20171030/26ed195281334ba4b1752394b60eb29a.jpeg",
+      url: this.$route.params.accountInfo.avatar_url,
       items: [],
       starItems: [],
       count: 0,
@@ -178,7 +177,7 @@ export default {
   width: 20%;
   float: left;
   height: 100vh;
-  background-color: #222d40;
+  background-color: #414141;
 }
 .items-list {
   width: 20%;
@@ -196,20 +195,42 @@ export default {
   overflow-y: auto;
   padding: 20px 40px;
 }
+.row_all {
+  margin-top: 20px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+.row_all:hover {
+  background-color: #4b4b4b;
+}
+.tag_all {
+  color: white;
+  margin-left: 20px;
+}
+.languages_item {
+  padding-left: 50px;
+  height:40px;
+  display: flex;
+  align-items: center;
+}
+.languages_item:hover {
+  background-color: #4b4b4b;
+}
 </style>
 <style>
 .el-collapse {
-  border-top: 1px solid #222d40;
-  border-bottom: 1px solid #222d40;
+  border-top: 1px solid #414141;
+  border-bottom: 1px solid #414141;
 }
 .left-side-collapse .el-collapse-item__header {
-  background-color: #222d40;
-  border-color: #222d40;
+  background-color: #414141;
+  border-color: #414141;
   color: #fff;
 }
 .left-side-collapse .el-collapse-item__wrap {
-  background-color: #222d40;
-  border-bottom: 1px solid #222d40;
+  background-color: #414141;
+  border-bottom: 1px solid #414141;
   color: #fff;
 }
 .left-side-collapse .el-collapse-item__content {
