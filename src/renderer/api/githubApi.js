@@ -34,3 +34,11 @@ export function getStarItems(accessToken, endCursor) {
         }
     );
 }
+
+export function getReadmeInfo(owner, repo) {
+    return request_get("https://api.github.com/repos/" + owner + "/" + repo + "/readme");
+}
+
+export function getReadmeContent(downloadUrl) {
+    return request_get(downloadUrl);
+}
