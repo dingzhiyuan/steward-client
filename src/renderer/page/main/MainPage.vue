@@ -31,14 +31,18 @@
     <div
       style="width:80%;float:left;box-sizing:border-box;height:100vh;overflow-y:auto;padding:20px 40px;"
     >
-      <vue-markdown :source="readme_contents"></vue-markdown>
+      <vue-markdown :source="readme_content"></vue-markdown>
     </div>
   </div>
 </template>
 
 <script>
 import VueMarkdown from "vue-markdown";
-import { getStarItems } from "../../api/githubApi";
+import {
+  getStarItems,
+  getReadmeInfo,
+  getReadmeContent
+} from "../../api/githubApi";
 
 export default {
   components: {
@@ -51,7 +55,7 @@ export default {
       count: 0,
       nextUrl: "",
       lastUrl: "",
-      readme_contents: null
+      readme_content: ""
     };
   },
   created() {
@@ -59,11 +63,11 @@ export default {
   },
   methods: {
     loadMore() {
-      if (this.count == this.starItems.length - 1) {
+      if (this.count == this.starItems.length) {
         return;
       }
-      this.count++;
       this.items = this.items.concat(this.starItems[this.count]);
+      this.count++;
       console.log(this.items);
     },
     initItems() {
@@ -74,10 +78,10 @@ export default {
         this.items = this.starItems[0];
         return;
       }
-      console.log(cursor)
       getStarItems(accessToken, cursor).then(data => {
-        this.starItems.push(data.data.data.viewer.starredRepositories.edges);
-        console.log(this.starItems)
+        if (data.data.data.viewer.starredRepositories.edges.length > 0) {
+          this.starItems.push(data.data.data.viewer.starredRepositories.edges);
+        }
         this.loadItems(
           accessToken,
           data.data.data.viewer.starredRepositories.pageInfo.endCursor,
@@ -86,22 +90,20 @@ export default {
       });
     },
     clickItem(item) {
-      console.log(item);
-      this.getReadmeInfo(item.owner.login, item.name).then(data => {
-        this.readme_contents = data;
+      let nameWithOwner = item.node.nameWithOwner.split("/");
+      this.getReadmeInfo(nameWithOwner[0], nameWithOwner[1]).then(data => {
+        this.readme_content = data;
       });
     },
     async getReadmeInfo(owner, repo) {
-      let { data } = await this.$Request_get(
-        "https://api.github.com/repos/" + owner + "/" + repo + "/readme"
-      );
-      data = await this.getReadme(data.download_url);
+      let { data } = await getReadmeInfo(owner, repo);
+      data = this.getReadmeContent(data.download_url);
       return new Promise((resolve, reject) => {
         resolve(data);
       });
     },
-    async getReadme(readmeUrl) {
-      let { data } = await this.$Request_get(readmeUrl);
+    async getReadmeContent(readmeUrl) {
+      let { data } = await getReadmeContent(readmeUrl);
       return new Promise((resolve, reject) => {
         resolve(data);
       });
