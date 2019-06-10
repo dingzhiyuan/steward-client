@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 
 import store from '../renderer/store'
 
@@ -22,7 +22,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     height: 563,
     width: 1000,
-    webPreferences: {webSecurity: false}
+    webPreferences: { webSecurity: false }
   })
 
   mainWindow.loadURL(winURL)
@@ -30,6 +30,8 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  Menu.setApplicationMenu(null)
 }
 
 app.on('ready', createWindow)

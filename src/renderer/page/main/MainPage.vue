@@ -1,10 +1,32 @@
 <template>
   <div>
-    <div
-      class="infinite-list"
-      v-infinite-scroll="loadMore"
-      style="width:20%;float:left;height:100vh;box-sizing:border-box;border-right:1px solid #ccc;overflow-y:auto;"
-    >
+    <div class="account-info">
+      <div style="text-align:center;">
+        <el-image
+          :src="url"
+          :fit="fill"
+          style="width:100px;height:100px;margin-top:30px;border-radius:100px"
+        />
+        <el-row style="color:white;margin-top:10px;">asdfasdf</el-row>
+      </div>
+      <el-row style="margin-top:20px;">
+        <el-col>
+          <i class="el-icon-s-grid"/>
+          <span style="color:white;">All</span>
+        </el-col>
+      </el-row>
+      <el-collapse class="left-side-collapse">
+        <el-collapse-item>
+          <template slot="title">
+            <i class="header-icon el-icon-info"></i>
+            <span>LANGUAGES</span>
+          </template>
+          <div>C#</div>
+          <div>JS</div>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
+    <div class="infinite-list items-list" v-infinite-scroll="loadMore">
       <el-row v-for="item in items" :key="item.node.id" class="infinite-list-item">
         <el-col :span="24">
           <div class="grid-content bg-purple-dark" @click="clickItem(item)">
@@ -28,9 +50,7 @@
         </el-col>
       </el-row>
     </div>
-    <div
-      style="width:80%;float:left;box-sizing:border-box;height:100vh;overflow-y:auto;padding:20px 40px;"
-    >
+    <div class="readme-content">
       <vue-markdown :source="readme_content"></vue-markdown>
     </div>
   </div>
@@ -50,6 +70,8 @@ export default {
   },
   data() {
     return {
+      url:
+        "http://5b0988e595225.cdn.sohucs.com/images/20171030/26ed195281334ba4b1752394b60eb29a.jpeg",
       items: [],
       starItems: [],
       count: 0,
@@ -59,7 +81,7 @@ export default {
     };
   },
   created() {
-    this.initItems();
+    // this.initItems();
   },
   methods: {
     loadMore() {
@@ -68,7 +90,6 @@ export default {
       }
       this.items = this.items.concat(this.starItems[this.count]);
       this.count++;
-      console.log(this.items);
     },
     initItems() {
       this.loadItems(this.$route.params.accountInfo.accessToken, "", 0);
@@ -127,7 +148,7 @@ export default {
 }
 .grid-content {
   min-height: 36px;
-  border-bottom: 3px solid #fff;
+  border-bottom: 2px solid #fff;
   box-sizing: border-box;
   background: #fafafa;
   padding: 5px 15px 5px 20px;
@@ -153,4 +174,46 @@ export default {
   padding: 10px 0;
   background-color: #f9fafc;
 }
+.account-info {
+  width: 20%;
+  float: left;
+  height: 100vh;
+  background-color: #222d40;
+}
+.items-list {
+  width: 20%;
+  float: left;
+  height: 100vh;
+  box-sizing: border-box;
+  border-right: 1px solid #ccc;
+  overflow-y: auto;
+}
+.readme-content {
+  width: 60%;
+  float: left;
+  box-sizing: border-box;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 20px 40px;
+}
 </style>
+<style>
+.el-collapse {
+  border-top: 1px solid #222d40;
+  border-bottom: 1px solid #222d40;
+}
+.left-side-collapse .el-collapse-item__header {
+  background-color: #222d40;
+  border-color: #222d40;
+  color: #fff;
+}
+.left-side-collapse .el-collapse-item__wrap {
+  background-color: #222d40;
+  border-bottom: 1px solid #222d40;
+  color: #fff;
+}
+.left-side-collapse .el-collapse-item__content {
+  color: #fff;
+}
+</style>
+
