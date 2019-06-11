@@ -1,10 +1,17 @@
 const state = {
+  accountInfo: null,
   firstCursor: null,
   starItems: null,
   totalCount: null
 }
 
 const mutations = {
+  SET_ACCOUNT_INFO(state, data) {
+    state.accountInfo = data;
+  },
+  CLEAR_ACCOUNT_INFO(state) {
+    state.accountInfo = null;
+  },
   SET_STAR_ITEMS(state, data) {
     state.starItems = data;
   },
@@ -23,6 +30,12 @@ const mutations = {
 }
 
 const actions = {
+  setAccountInfo({ commit }, data) {
+    commit('SET_ACCOUNT_INFO', data);
+  },
+  clearAccountInfo({ commit }) {
+    commit('CLEAR_ACCOUNT_INFO');
+  },
   setStarItems({ commit }, data) {
     commit('SET_STAR_ITEMS', data);
   },

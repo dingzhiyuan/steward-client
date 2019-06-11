@@ -7,7 +7,7 @@
           :fit="fill"
           style="width:100px;height:100px;margin-top:30px;border-radius:100px"
         />
-        <el-row style="color:white;margin-top:10px;">{{this.$route.params.accountInfo.login}}</el-row>
+        <el-row style="color:white;margin-top:10px;">{{accountInfo.login}}</el-row>
       </div>
       <el-row class="row_all">
         <el-col>
@@ -74,9 +74,10 @@ export default {
   },
   data() {
     return {
+      accountInfo: null,
       currentLoadedCount: 0,
       totalCount: 0,
-      url: this.$route.params.accountInfo.avatar_url,
+      url: "",
       items: [],
       starItems: [],
       count: 0,
@@ -102,46 +103,60 @@ export default {
       this.count++;
     },
     initItems() {
-      this.loadItems(this.$route.params.accountInfo.accessToken, "", 0);
+      this.accountInfo = this.$route.params.accountInfo;
+      let cacheAccountInfo = this.$store.state.global.accountInfo;
+      if (undefined != cacheAccountInfo || null != cacheAccountInfo) {
+        this.accountInfo = cacheAccountInfo;
+      } else {
+        this.$store.dispatch("setAccountInfo", this.$route.params.accountInfo);
+      }
+      let accessToken = this.accountInfo.accessToken;
+      this.url = this.accountInfo.avatar_url;
+      this.loadItems(accessToken, "", 0);
     },
     loadItems(accessToken, cursor, index) {
-      getStarItems(accessToken, cursor).then(data => {
-        let starredRepositories = data.data.data.viewer.starredRepositories;
-        let cacheStarItems = this.$store.state.global.starItems;
-        if (
-          null == cacheStarItems ||
-          cacheStarItems.length == 0 ||
-          (this.$store.state.global.firstCursor !=
-            starredRepositories.pageInfo.endCursor &&
-            cacheStarItems.length == starredRepositories.totalCount)
-        ) {
-          if (starredRepositories.edges.length > 0) {
-            if (cursor == "") {
-              this.$store.dispatch(
-                "setFirstCursor",
-                starredRepositories.pageInfo.endCursor
+      getStarItems(accessToken, cursor)
+        .then(data => {
+          let starredRepositories = data.data.data.viewer.starredRepositories;
+          let cacheStarItems = this.$store.state.global.starItems;
+          if (
+            null == cacheStarItems ||
+            cacheStarItems.length == 0 ||
+            (this.$store.state.global.firstCursor !=
+              starredRepositories.pageInfo.endCursor &&
+              cacheStarItems.length == starredRepositories.totalCount)
+          ) {
+            if (starredRepositories.edges.length > 0) {
+              if (cursor == "") {
+                this.$store.dispatch(
+                  "setFirstCursor",
+                  starredRepositories.pageInfo.endCursor
+                );
+              }
+              this.totalCount = starredRepositories.totalCount;
+              this.currentLoadedCount += starredRepositories.edges.length;
+              this.starItems.push(starredRepositories.edges);
+              this.loadItems(
+                accessToken,
+                starredRepositories.pageInfo.endCursor,
+                index++
               );
+            } else {
+              this.$store.dispatch("setStarItems", this.starItems);
+              this.$store.dispatch("setTotalCount", this.currentLoadedCount);
+              this.loadComplete(this.starItems, this.currentLoadedCount);
             }
-            this.totalCount = starredRepositories.totalCount;
-            this.currentLoadedCount += starredRepositories.edges.length;
-            this.starItems.push(starredRepositories.edges);
-            this.loadItems(
-              accessToken,
-              starredRepositories.pageInfo.endCursor,
-              index++
-            );
           } else {
-            this.$store.dispatch("setStarItems", this.starItems);
-            this.$store.dispatch("setTotalCount", this.currentLoadedCount);
-            this.loadComplete(this.starItems, this.currentLoadedCount);
+            this.loadComplete(
+              cacheStarItems,
+              this.$store.state.global.totalCount
+            );
           }
-        } else {
-          this.loadComplete(
-            cacheStarItems,
-            this.$store.state.global.totalCount
-          );
-        }
-      });
+        })
+        .catch(error => {
+          this.$store.dispatch("clearAccountInfo");
+          this.$router.push("/");
+        });
     },
     loadComplete(items, totalCount) {
       this.items = items[0];
@@ -233,6 +248,7 @@ export default {
   float: left;
   height: 100vh;
   background-color: #414141;
+  overflow-y: auto;
 }
 .items-list {
   width: 15%;
