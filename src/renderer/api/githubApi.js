@@ -30,7 +30,7 @@ export function getStarItems(accessToken, endCursor) {
         "https://api.github.com/graphql",
         {
             query:
-                '{viewer {starredRepositories(first:100' + cursor + ') {totalCount edges {node {  id  nameWithOwner  description  url  databaseId primaryLanguage {   name } stargazers {   totalCount  }  forkCount  } }pageInfo {  endCursor  hasNextPage}}}}'
+                '{viewer {starredRepositories(first:100, orderBy: {field: STARRED_AT, direction: DESC}' + cursor + ') {totalCount edges {node {  id  nameWithOwner  description  url  databaseId primaryLanguage {   name } stargazers {   totalCount  }  forkCount  } }pageInfo {  endCursor  hasNextPage}}}}'
         }
     );
 }
