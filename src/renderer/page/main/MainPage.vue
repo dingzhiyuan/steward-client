@@ -20,7 +20,7 @@
             <span style="margin-left:20px;font-size:14px;">LANGUAGES</span>
           </template>
           <el-row v-for="languageName in languageNameList" :key="languageName">
-            <el-row class="languages_item">{{languageName}}</el-row>
+            <el-row class="languages_item" @click.native="clickLanguage(languageName)">{{languageName}}</el-row>
           </el-row>
         </el-collapse-item>
       </el-collapse>
@@ -35,6 +35,7 @@
         <el-col :span="24">
           <div class="grid-content bg-purple-dark" @click="clickItem(item)">
             <p class="info-title">{{item.node.nameWithOwner.split('/')[1]}}</p>
+            <p class="info-author">author:{{item.node.nameWithOwner.split('/')[0]}}</p>
             <p class="info-description">{{item.node.description}}</p>
             <el-row class="info-handler-col">
               <el-col :span="8">
@@ -86,7 +87,6 @@ export default {
       readme_content: "",
       loading: true,
       fill: "fill",
-      firstCursor: "",
       languageList: [],
       languageNameList: []
     };
@@ -99,8 +99,8 @@ export default {
       if (this.count == this.starItems.length) {
         return;
       }
-      this.items = this.items.concat(this.starItems[this.count]);
       this.count++;
+      this.items = this.items.concat(this.starItems[this.count]);
     },
     initItems() {
       this.accountInfo = this.$route.params.accountInfo;
@@ -119,20 +119,18 @@ export default {
         .then(data => {
           let starredRepositories = data.data.data.viewer.starredRepositories;
           let cacheStarItems = this.$store.state.global.starItems;
+          let needLoadItems = false;
+          if (null == cacheStarItems || cacheStarItems.length == 0) {
+            needLoadItems = true;
+          }
           if (
-            null == cacheStarItems ||
-            cacheStarItems.length == 0 ||
-            (this.$store.state.global.firstCursor !=
-              starredRepositories.pageInfo.endCursor &&
-              cacheStarItems.length == starredRepositories.totalCount)
+            this.$store.state.global.totalCount !=
+            starredRepositories.totalCount
           ) {
+            needLoadItems = true;
+          }
+          if (needLoadItems) {
             if (starredRepositories.edges.length > 0) {
-              if (cursor == "") {
-                this.$store.dispatch(
-                  "setFirstCursor",
-                  starredRepositories.pageInfo.endCursor
-                );
-              }
               this.totalCount = starredRepositories.totalCount;
               this.currentLoadedCount += starredRepositories.edges.length;
               this.starItems.push(starredRepositories.edges);
@@ -160,6 +158,7 @@ export default {
     },
     loadComplete(items, totalCount) {
       this.items = items[0];
+      this.starItems = items;
       this.loading = false;
       this.currentLoadedCount = totalCount;
       this.totalCount = totalCount;
@@ -184,6 +183,10 @@ export default {
       this.getReadmeInfo(nameWithOwner[0], nameWithOwner[1]).then(data => {
         this.readme_content = data;
       });
+    },
+    clickLanguage(languageName) {
+      let list = this.languageList[languageName];
+      this.items = list;
     },
     async getReadmeInfo(owner, repo) {
       let { data } = await getReadmeInfo(owner, repo);
@@ -226,13 +229,20 @@ export default {
   background: #f2f2f2;
 }
 .grid-content .info-title {
+  font-size: 18px;
+  font-weight: blod;
   color: #72c453;
   word-break: break-all;
 }
-.grid-content .info-description {
-  color: #222;
+.grid-content .info-author {
+  font-size: 14px;
+  color: #222d40;
   word-break: break-all;
-  font-size: 12px;
+}
+.grid-content .info-description {
+  color: #222d40;
+  font-size: 14px;
+  word-break: break-all;
 }
 .grid-content .info-handler-col {
   margin: 5px 0;
