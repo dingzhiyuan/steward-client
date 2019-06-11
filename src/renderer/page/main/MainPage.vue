@@ -85,7 +85,8 @@ export default {
       lastUrl: "",
       readme_content: "",
       loading: true,
-      fill: "fill"
+      fill: "fill",
+      firstCursor: ""
     };
   },
   created() {
@@ -103,22 +104,42 @@ export default {
       this.loadItems(this.$route.params.accountInfo.accessToken, "", 0);
     },
     loadItems(accessToken, cursor, index) {
-      if (cursor == null) {
-        this.items = this.starItems[0];
-        this.loading = false;
-        return;
-      }
       getStarItems(accessToken, cursor).then(data => {
-        this.totalCount = data.data.data.viewer.starredRepositories.totalCount;
-        if (data.data.data.viewer.starredRepositories.edges.length > 0) {
-          this.currentLoadedCount +=
-            data.data.data.viewer.starredRepositories.edges.length;
-          this.starItems.push(data.data.data.viewer.starredRepositories.edges);
-          this.loadItems(
-            accessToken,
-            data.data.data.viewer.starredRepositories.pageInfo.endCursor,
-            index++
-          );
+        let starredRepositories = data.data.data.viewer.starredRepositories;
+        if (
+          null == this.$store.state.global.starItems ||
+          this.$store.state.global.starItems.length == 0 ||
+          (this.$store.state.global.firstCursor !=
+            starredRepositories.pageInfo.endCursor &&
+            this.$store.state.global.starItems.length ==
+              starredRepositories.totalCount)
+        ) {
+          if (starredRepositories.edges.length > 0) {
+            if (cursor == "") {
+              this.$store.dispatch(
+                "setFirstCursor",
+                starredRepositories.pageInfo.endCursor
+              );
+            }
+            this.totalCount = starredRepositories.totalCount;
+            this.currentLoadedCount += starredRepositories.edges.length;
+            this.starItems.push(starredRepositories.edges);
+            this.loadItems(
+              accessToken,
+              starredRepositories.pageInfo.endCursor,
+              index++
+            );
+          } else {
+            this.items = this.starItems[0];
+            this.loading = false;
+            this.$store.dispatch("setStarItems", this.starItems);
+            this.$store.dispatch("setTotalCount", this.currentLoadedCount);
+          }
+        } else {
+          this.items = this.$store.state.global.starItems[0];
+          this.loading = false;
+          this.currentLoadedCount = this.$store.state.global.totalCount;
+          this.totalCount = this.$store.state.global.totalCount;
         }
       });
     },
@@ -187,13 +208,13 @@ export default {
   background-color: #f9fafc;
 }
 .account-info {
-  width: 20%;
+  width: 15%;
   float: left;
   height: 100vh;
   background-color: #414141;
 }
 .items-list {
-  width: 20%;
+  width: 15%;
   float: left;
   height: 100vh;
   box-sizing: border-box;
@@ -201,7 +222,7 @@ export default {
   overflow-y: auto;
 }
 .readme-content {
-  width: 60%;
+  width: 70%;
   float: left;
   box-sizing: border-box;
   height: 100vh;
