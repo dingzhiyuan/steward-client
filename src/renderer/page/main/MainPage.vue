@@ -17,12 +17,11 @@
       <el-collapse class="left-side-collapse">
         <el-collapse-item>
           <template slot="title">
-            <span style="margin-left:20px;">LANGUAGES</span>
+            <span style="margin-left:20px;font-size:14px;">LANGUAGES</span>
           </template>
-          <div>
-            <div class="languages_item">C#</div>
-            <div class="languages_item">JS</div>
-          </div>
+          <el-row v-for="languageName in languageNameList" :key="languageName">
+            <el-row class="languages_item">{{languageName}}</el-row>
+          </el-row>
         </el-collapse-item>
       </el-collapse>
     </div>
@@ -86,7 +85,9 @@ export default {
       readme_content: "",
       loading: true,
       fill: "fill",
-      firstCursor: ""
+      firstCursor: "",
+      languageList: [],
+      languageNameList: []
     };
   },
   created() {
@@ -106,13 +107,13 @@ export default {
     loadItems(accessToken, cursor, index) {
       getStarItems(accessToken, cursor).then(data => {
         let starredRepositories = data.data.data.viewer.starredRepositories;
+        let cacheStarItems = this.$store.state.global.starItems;
         if (
-          null == this.$store.state.global.starItems ||
-          this.$store.state.global.starItems.length == 0 ||
+          null == cacheStarItems ||
+          cacheStarItems.length == 0 ||
           (this.$store.state.global.firstCursor !=
             starredRepositories.pageInfo.endCursor &&
-            this.$store.state.global.starItems.length ==
-              starredRepositories.totalCount)
+            cacheStarItems.length == starredRepositories.totalCount)
         ) {
           if (starredRepositories.edges.length > 0) {
             if (cursor == "") {
@@ -130,18 +131,38 @@ export default {
               index++
             );
           } else {
-            this.items = this.starItems[0];
-            this.loading = false;
             this.$store.dispatch("setStarItems", this.starItems);
             this.$store.dispatch("setTotalCount", this.currentLoadedCount);
+            this.loadComplete(this.starItems, this.currentLoadedCount);
           }
         } else {
-          this.items = this.$store.state.global.starItems[0];
-          this.loading = false;
-          this.currentLoadedCount = this.$store.state.global.totalCount;
-          this.totalCount = this.$store.state.global.totalCount;
+          this.loadComplete(
+            cacheStarItems,
+            this.$store.state.global.totalCount
+          );
         }
       });
+    },
+    loadComplete(items, totalCount) {
+      this.items = items[0];
+      this.loading = false;
+      this.currentLoadedCount = totalCount;
+      this.totalCount = totalCount;
+      for (let i = 0; i < items.length; i++) {
+        for (let item of items[i]) {
+          let languageName =
+            null == item.node.primaryLanguage
+              ? "unknown"
+              : item.node.primaryLanguage.name;
+          let list = this.languageList[languageName];
+          if (undefined == list) {
+            list = [];
+            this.languageNameList.push(languageName);
+          }
+          list.push(item);
+          this.languageList[languageName] = list;
+        }
+      }
     },
     clickItem(item) {
       let nameWithOwner = item.node.nameWithOwner.split("/");
@@ -239,10 +260,12 @@ export default {
   background-color: #4b4b4b;
 }
 .tag_all {
+  font-size: 14px;
   color: white;
   margin-left: 20px;
 }
 .languages_item {
+  font-size: 14px;
   padding-left: 50px;
   height: 40px;
   display: flex;
