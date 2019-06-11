@@ -9,11 +9,7 @@ const mutations = {
     state.accountInfo = data;
   },
   SET_STAR_ITEMS(state, data) {
-    state.starTotalCount = data.data.data.viewer.starredRepositories.totalCount;
-    if (!state.starItems) {
-      state.starItems = [];
-    }
-    state.starItems.push(data.data.data.viewer.starredRepositories.edges);
+    state.starItems = data;
   }
 }
 
