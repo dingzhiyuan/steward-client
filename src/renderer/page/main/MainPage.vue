@@ -11,7 +11,7 @@
       </div>
       <el-row class="row_all">
         <el-col>
-          <span class="tag_all">All</span>
+          <span class="tag_all">All(已加载:{{currentLoadedCount}}/总计:{{totalCount}})</span>
         </el-col>
       </el-row>
       <el-collapse class="left-side-collapse">
@@ -26,7 +26,12 @@
         </el-collapse-item>
       </el-collapse>
     </div>
-    <div class="infinite-list items-list" v-infinite-scroll="loadMore">
+    <div
+      v-loading="loading"
+      element-loading-spinner="el-icon-loading"
+      class="infinite-list items-list"
+      v-infinite-scroll="loadMore"
+    >
       <el-row v-for="item in items" :key="item.node.id" class="infinite-list-item">
         <el-col :span="24">
           <div class="grid-content bg-purple-dark" @click="clickItem(item)">
@@ -70,17 +75,21 @@ export default {
   },
   data() {
     return {
+      currentLoadedCount: 0,
+      totalCount: 0,
       url: this.$route.params.accountInfo.avatar_url,
       items: [],
       starItems: [],
       count: 0,
       nextUrl: "",
       lastUrl: "",
-      readme_content: ""
+      readme_content: "",
+      loading: true,
+      fill: "fill"
     };
   },
   created() {
-    // this.initItems();
+    this.initItems();
   },
   methods: {
     loadMore() {
@@ -96,17 +105,21 @@ export default {
     loadItems(accessToken, cursor, index) {
       if (cursor == null) {
         this.items = this.starItems[0];
+        this.loading = false;
         return;
       }
       getStarItems(accessToken, cursor).then(data => {
+        this.totalCount = data.data.data.viewer.starredRepositories.totalCount;
         if (data.data.data.viewer.starredRepositories.edges.length > 0) {
+          this.currentLoadedCount +=
+            data.data.data.viewer.starredRepositories.edges.length;
           this.starItems.push(data.data.data.viewer.starredRepositories.edges);
+          this.loadItems(
+            accessToken,
+            data.data.data.viewer.starredRepositories.pageInfo.endCursor,
+            index++
+          );
         }
-        this.loadItems(
-          accessToken,
-          data.data.data.viewer.starredRepositories.pageInfo.endCursor,
-          index++
-        );
       });
     },
     clickItem(item) {
@@ -210,7 +223,7 @@ export default {
 }
 .languages_item {
   padding-left: 50px;
-  height:40px;
+  height: 40px;
   display: flex;
   align-items: center;
 }
