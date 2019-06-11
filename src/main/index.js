@@ -20,10 +20,10 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
-    width: 1000,
     webPreferences: { webSecurity: false }
   })
+  mainWindow.maximize()
+  mainWindow.setResizable(false)
 
   mainWindow.loadURL(winURL)
 
