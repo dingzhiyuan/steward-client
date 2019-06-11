@@ -6,8 +6,6 @@
 
 <script>
 import { doLogin, getAccountInfo } from "../../api/githubApi";
-import { resolve } from "url";
-import { access } from "fs";
 
 export default {
   mounted() {
