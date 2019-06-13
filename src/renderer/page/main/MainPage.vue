@@ -34,7 +34,12 @@
       class="infinite-list items-list"
       v-infinite-scroll="loadMore"
     >
-      <el-row v-for="item in items" :key="item.node.id" class="infinite-list-item">
+      <el-row style="height:50px;padding:5px;">
+        <el-input placeholder="请输入搜索内容" v-model="searchValue" @input="search">
+          <i slot="prefix" class="el-input__icon el-icon-search"/>
+        </el-input>
+      </el-row>
+      <el-row v-for="item in items" :key="item.node.nameWithOwner" class="infinite-list-item">
         <el-col :span="24">
           <div class="grid-content bg-purple-dark" @click="clickItem(item)">
             <p class="info-title">{{item.node.nameWithOwner.split('/')[1]}}</p>
@@ -66,6 +71,7 @@
 
 <script>
 import VueMarkdown from "vue-markdown";
+import "./main.css";
 import {
   getStarItems,
   getReadmeInfo,
@@ -92,7 +98,8 @@ export default {
       loading: true,
       fill: "fill",
       languageList: [],
-      languageNameList: []
+      languageNameList: [],
+      searchValue: ""
     };
   },
   created() {
@@ -196,6 +203,27 @@ export default {
         this.languageList[key] = items;
       }
     },
+    search() {
+      this.starItems = [];
+      let list = [];
+      let index = 0;
+      for (let temp of this.totalStarItems) {
+        for (let item of temp) {
+          if (
+            item.node.nameWithOwner.split("/")[1].startsWith(this.searchValue)
+          ) {
+            list.push(item);
+            this.starItems[index] = list;
+            if (list.length == 100) {
+              list = [];
+              index++;
+            }
+          }
+        }
+      }
+      this.items = this.starItems[0];
+      this.count = 0;
+    },
     clickItem(item) {
       let nameWithOwner = item.node.nameWithOwner.split("/");
       this.getReadmeInfo(nameWithOwner[0], nameWithOwner[1]).then(data => {
@@ -223,119 +251,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.el-col {
-  border-radius: 4px;
-}
-.bg-purple-dark {
-  background: #99a9bf;
-}
-.bg-purple {
-  background: #d3dce6;
-}
-.bg-purple-light {
-  background: #e5e9f2;
-}
-.grid-content {
-  min-height: 36px;
-  border-bottom: 2px solid #fff;
-  box-sizing: border-box;
-  background: #fafafa;
-  padding: 5px 15px 5px 20px;
-}
-.grid-content:hover {
-  background: #f2f2f2;
-}
-.grid-content .info-title {
-  font-size: 18px;
-  font-weight: blod;
-  color: #72c453;
-  word-break: break-all;
-}
-.grid-content .info-author {
-  font-size: 14px;
-  color: #222d40;
-  word-break: break-all;
-}
-.grid-content .info-description {
-  color: #222d40;
-  font-size: 14px;
-  word-break: break-all;
-}
-.grid-content .info-handler-col {
-  margin: 5px 0;
-  font-size: 12px;
-  color: #666;
-}
-.row-bg {
-  padding: 10px 0;
-  background-color: #f9fafc;
-}
-.account-info {
-  width: 15%;
-  float: left;
-  height: 100vh;
-  background-color: #414141;
-  overflow-y: auto;
-}
-.items-list {
-  width: 15%;
-  float: left;
-  height: 100vh;
-  box-sizing: border-box;
-  border-right: 1px solid #ccc;
-  overflow-y: auto;
-}
-.readme-content {
-  width: 70%;
-  float: left;
-  box-sizing: border-box;
-  height: 100vh;
-  overflow-y: auto;
-  padding: 20px 40px;
-}
-.row_all {
-  margin-top: 20px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-}
-.row_all:hover {
-  background-color: #4b4b4b;
-}
-.tag_all {
-  font-size: 14px;
-  color: white;
-  margin-left: 20px;
-}
-.languages_item {
-  font-size: 14px;
-  padding-left: 50px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-}
-.languages_item:hover {
-  background-color: #4b4b4b;
-}
-</style>
-<style>
-.el-collapse {
-  border-top: 1px solid #414141;
-  border-bottom: 1px solid #414141;
-}
-.left-side-collapse .el-collapse-item__header {
-  background-color: #414141;
-  border-color: #414141;
-  color: #fff;
-}
-.left-side-collapse .el-collapse-item__wrap {
-  background-color: #414141;
-  border-bottom: 1px solid #414141;
-  color: #fff;
-}
-.left-side-collapse .el-collapse-item__content {
-  color: #fff;
-}
-</style>
