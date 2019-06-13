@@ -20,7 +20,10 @@
             <span style="margin-left:20px;font-size:14px;">LANGUAGES</span>
           </template>
           <el-row v-for="languageName in languageNameList" :key="languageName">
-            <el-row class="languages_item" @click.native="clickLanguage(languageName)">{{languageName}}</el-row>
+            <el-row
+              class="languages_item"
+              @click.native="clickLanguage(languageName)"
+            >{{languageName}}</el-row>
           </el-row>
         </el-collapse-item>
       </el-collapse>
@@ -80,6 +83,7 @@ export default {
       totalCount: 0,
       url: "",
       items: [],
+      totalStarItems: [],
       starItems: [],
       count: 0,
       nextUrl: "",
@@ -159,6 +163,7 @@ export default {
     loadComplete(items, totalCount) {
       this.items = items[0];
       this.starItems = items;
+      this.totalStarItems = items;
       this.loading = false;
       this.currentLoadedCount = totalCount;
       this.totalCount = totalCount;
@@ -177,6 +182,19 @@ export default {
           this.languageList[languageName] = list;
         }
       }
+      for (let key in this.languageList) {
+        let list = this.languageList[key];
+        let count = list.length / 100 + 1;
+        let lastCount = list.length % 100;
+        let items = [];
+        for (let i = 0; i < count; i++) {
+          let array = list.splice(0, 100);
+          if (array.length > 0) {
+            items[i] = array;
+          }
+        }
+        this.languageList[key] = items;
+      }
     },
     clickItem(item) {
       let nameWithOwner = item.node.nameWithOwner.split("/");
@@ -186,7 +204,8 @@ export default {
     },
     clickLanguage(languageName) {
       let list = this.languageList[languageName];
-      this.items = list;
+      this.count = 0;
+      this.items = list[0];
     },
     async getReadmeInfo(owner, repo) {
       let { data } = await getReadmeInfo(owner, repo);
@@ -320,4 +339,3 @@ export default {
   color: #fff;
 }
 </style>
-
