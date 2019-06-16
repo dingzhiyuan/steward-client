@@ -19,11 +19,11 @@
           <template slot="title">
             <span style="margin-left:20px;font-size:14px;">LANGUAGES</span>
           </template>
-          <el-row v-for="languageName in languageNameList" :key="languageName">
+          <el-row v-for="item in languageNameList" :key="item.languageName">
             <el-row
               class="languages_item"
-              @click.native="clickLanguage(languageName)"
-            >{{languageName}}</el-row>
+              @click.native="clickLanguage(item.languageName)"
+            >{{item.languageName}} ({{item.list.length}})</el-row>
           </el-row>
         </el-collapse-item>
       </el-collapse>
@@ -91,7 +91,7 @@ export default {
       items: [],
       totalStarItems: [],
       starItems: [],
-      count: 0,
+      count: -1,
       nextUrl: "",
       lastUrl: "",
       readme_content: "",
@@ -107,7 +107,7 @@ export default {
   },
   methods: {
     loadMore() {
-      if (this.count == this.starItems.length) {
+      if (this.count == -1 || this.count + 1 == this.starItems.length) {
         return;
       }
       this.count++;
@@ -189,19 +189,24 @@ export default {
           this.languageList[languageName] = list;
         }
       }
+      let temp = [];
       for (let key in this.languageList) {
         let list = this.languageList[key];
-        let count = list.length / 100 + 1;
-        let lastCount = list.length % 100;
-        let items = [];
-        for (let i = 0; i < count; i++) {
-          let array = list.splice(0, 100);
-          if (array.length > 0) {
-            items[i] = array;
+        temp.push({ languageName: key, list: list });
+        let tempArray = [];
+        let array = [];
+        for (let i = 0; i < list.length; i++) {
+          if (i != 0 && i % 100 == 0) {
+            tempArray.push(array);
+            array = [];
           }
+          array.push(list[i]);
         }
-        this.languageList[key] = items;
+        tempArray.push(array);
+        this.languageList[key] = tempArray;
       }
+      this.languageNameList = temp;
+      this.count = 0;
     },
     search() {
       this.starItems = [];
@@ -232,8 +237,10 @@ export default {
     },
     clickLanguage(languageName) {
       let list = this.languageList[languageName];
+      console.log(list);
       this.count = 0;
       this.items = list[0];
+      this.starItems = list;
     },
     async getReadmeInfo(owner, repo) {
       let { data } = await getReadmeInfo(owner, repo);
